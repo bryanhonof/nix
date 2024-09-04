@@ -51,16 +51,13 @@ nix3_cli_files = custom_target(
 conf_file_md = custom_target(
   command : [
     nix_eval_for_docs,
-    '--write-to', '@OUTPUT@',
     '--expr',
-    'import @INPUT0@ (builtins.fromJSON (builtins.readFile @INPUT1@))',
+    'import @INPUT0@ { prefix = "conf"; } (builtins.fromJSON (builtins.readFile @INPUT1@))',
   ],
   capture : true,
   input : [
     '../../generate-settings.nix',
-    '../../utils.nix',
     conf_file_json,
-    experimental_features_shortlist_md,
   ],
   output : 'conf-file.md',
   env : nix_env_for_docs,
