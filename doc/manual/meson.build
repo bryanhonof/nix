@@ -36,33 +36,6 @@ conf_file_json = custom_target(
   env : nix_env_for_docs,
 )
 
-nix_conf_file_md_body = custom_target(
-  command : nix_eval_for_docs + [
-    '--expr',
-    'import @INPUT1@ { prefix = "conf"; } (builtins.fromJSON (builtins.readFile ./@INPUT0@))',
-  ],
-  capture : true,
-  input : [
-    conf_file_json,
-    'utils.nix',
-    'generate-settings.nix',
-    'src' / 'command-ref' / 'conf-file-prefix.md',
-    'src' / 'command-ref' / 'experimental-features-shortlist.md'
-  ],
-  output : 'conf-file.md.body',
-  env : nix_env_for_docs,
-)
-
-nix_conf_file_md = custom_target(
-  command : [ 'cat', '@INPUT@' ],
-  capture : true,
-  input : [
-    'src/command-ref/conf-file-prefix.md',
-    nix_conf_file_md_body,
-  ],
-  output : 'conf-file.md',
-)
-
 nix_exp_features_json = custom_target(
   command : [ nix, '__dump-xp-features' ],
   capture : true,
@@ -97,6 +70,33 @@ subdir('src/command-ref')
 subdir('src/contributing')
 # Generates rl-next-generated.md.
 subdir('src/release-notes')
+
+nix_conf_file_md_body = custom_target(
+  command : nix_eval_for_docs + [
+    '--expr',
+    'import @INPUT1@ { prefix = "conf"; } (builtins.fromJSON (builtins.readFile ./@INPUT0@))',
+  ],
+  capture : true,
+  input : [
+    conf_file_json,
+    'utils.nix',
+    'generate-settings.nix',
+    'src' / 'command-ref' / 'conf-file-prefix.md',
+    experimental_features_shortlist_md,
+  ],
+  output : 'conf-file.md.body',
+  env : nix_env_for_docs,
+)
+
+nix_conf_file_md = custom_target(
+  command : [ 'cat', '@INPUT@' ],
+  capture : true,
+  input : [
+    'src/command-ref/conf-file-prefix.md',
+    nix_conf_file_md_body,
+  ],
+  output : 'conf-file.md',
+)
 
 manual = custom_target(
   'manual',
