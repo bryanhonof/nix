@@ -11,6 +11,8 @@
 
 using namespace nix;
 
+namespace nix::fs { using namespace std::filesystem; }
+
 struct CmdEval : MixJSON, InstallableValueCommand, MixReadOnlyOption
 {
     bool raw = false;
@@ -75,8 +77,8 @@ struct CmdEval : MixJSON, InstallableValueCommand, MixReadOnlyOption
         if (writeTo) {
             stopProgressBar();
 
-            if (pathExists(*writeTo))
-                throw Error("path '%s' already exists", *writeTo);
+            //if (pathExists(*writeTo))
+            //    throw Error("path '%s' already exists", *writeTo);
 
             std::function<void(Value & v, const PosIdx pos, const std::filesystem::path & path)> recurse;
 
@@ -87,8 +89,8 @@ struct CmdEval : MixJSON, InstallableValueCommand, MixReadOnlyOption
                     // FIXME: disallow strings with contexts?
                     writeFile(path.string(), v.string_view());
                 else if (v.type() == nAttrs) {
-                    // TODO abstract mkdir perms for Windows
-                    createDir(path.string(), 0777);
+                    // N.B. this is idempotent
+                    fs::create_directory(path.string());
                     for (auto & attr : *v.attrs()) {
                         std::string_view name = state->symbols[attr.name];
                         try {

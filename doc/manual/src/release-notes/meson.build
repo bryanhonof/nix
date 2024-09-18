@@ -16,7 +16,7 @@ rl_next_generated = custom_target(
   input : [
     generate_manual_deps,
   ],
-  output : 'rl-next-generated.md',
+  output : 'rl-next.md',
   capture : true,
   depfile : 'rl-next.d',
 )

@@ -69,8 +69,21 @@ def recursive_replace(data, book_root, search_path):
 
 def main():
 
+    print(f'{name}: HIIIIII', file=sys.stderr)
+
     if len(sys.argv) > 1 and sys.argv[1] == 'supports':
         return 0
+
+    # includes pointing into @generated@ will look here
+    search_path = Path(os.environ['MDBOOK_SUBSTITUTE_SEARCH'])
+
+    if len(sys.argv) > 1 and sys.argv[1] == 'summary':
+        print(do_include(
+                        sys.stdin.read(),
+                        Path('src/SUMMARY.md'),
+                        Path(sys.argv[2]).resolve(),
+                        search_path))
+        return
 
     # mdbook communicates with us over stdin and stdout.
     # It splorks us a JSON array, the first element describing the context,
@@ -81,9 +94,6 @@ def main():
 
     # book_root is the directory where book contents leave (ie, src/)
     book_root = Path(context['root']) / context['config']['book']['src']
-
-    # includes pointing into @generated@ will look here
-    search_path = Path(os.environ['MDBOOK_SUBSTITUTE_SEARCH'])
 
     # Find @var@ in all parts of our recursive book structure.
     replaced_content = recursive_replace(book, book_root, search_path)

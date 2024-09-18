@@ -67,9 +67,10 @@ subdir('src/language')
 # Generates new-cli pages, experimental-features-shortlist.md, and conf-file.md.
 subdir('src/command-ref')
 # Generates experimental-feature-descriptions.md.
-subdir('src/contributing')
+subdir('src/development')
 # Generates rl-next-generated.md.
 subdir('src/release-notes')
+subdir('src')
 
 nix_conf_file_md_body = custom_target(
   command : nix_eval_for_docs + [
@@ -106,8 +107,9 @@ manual = custom_target(
     '-c',
     '''
         @0@ @INPUT0@ @CURRENT_SOURCE_DIR@ > @DEPFILE@
-        cd @SOURCE_ROOT@
-        @1@ build doc/manual -d @2@ | { grep -Fv "because fragment resolution isn't implemented" || :; }
+        @0@ @INPUT1@ summary @2@ < @CURRENT_SOURCE_DIR@/src/SUMMARY.md.in > @2@/src/SUMMARY.md
+        rsync -r --include='*.md' @CURRENT_SOURCE_DIR@/ @2@/
+        (cd @2@; RUST_LOG=warn @1@ build -d @2@ 3>&2 2>&1 1>&3) | { grep -Fv "because fragment resolution isn't implemented" || :; } 3>&2 2>&1 1>&3
         rm -rf @2@/manual
         mv @2@/html @2@/manual
         find @2@/manual -iname meson.build -delete
@@ -119,15 +121,18 @@ manual = custom_target(
   ],
   input : [
     generate_manual_deps,
+    'substitute.py',
     'book.toml',
     'anchors.jq',
     'custom.css',
     nix3_cli_files,
     experimental_features_shortlist_md,
     experimental_feature_descriptions_md,
+    types_dir,
     conf_file_md,
     builtins_md,
     rl_next_generated,
+    summary_rl_next,
     nix,
   ],
   output : [
@@ -225,7 +230,7 @@ nix3_manpages = [
   'nix3-derivation',
   'nix3-derivation-show',
   'nix3-develop',
-  'nix3-doctor',
+  #'nix3-doctor',
   'nix3-edit',
   'nix3-eval',
   'nix3-flake-archive',
@@ -279,7 +284,7 @@ nix3_manpages = [
   'nix3-repl',
   'nix3-run',
   'nix3-search',
-  'nix3-shell',
+  #'nix3-shell',
   'nix3-store-add-file',
   'nix3-store-add-path',
   'nix3-store-cat',
