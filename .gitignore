@@ -23,7 +23,6 @@ perl/Makefile.config
 /doc/manual/conf-file.json
 /doc/manual/language.json
 /doc/manual/xp-features.json
-/doc/manual/src/SUMMARY.md
 /doc/manual/src/SUMMARY-rl-next.md
 /doc/manual/src/store/types/*
 !/doc/manual/src/store/types/index.md.in
