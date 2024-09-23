@@ -210,7 +210,7 @@ foreach command : nix_nested_manpages
     custom_target(
       command : [
         bash,
-        './render-manpage.sh',
+        files('./render-manpage.sh'),
         '--out-no-smarty',
         title,
         section,
@@ -330,7 +330,7 @@ foreach page : nix3_manpages
       '@OUTPUT@',
     ],
     input : [
-      './render-manpage.sh',
+      files('./render-manpage.sh'),
       manual_md,
       nix_input,
     ],
@@ -373,7 +373,7 @@ foreach entry : nix_manpages
       '@OUTPUT@',
     ],
     input : [
-      './render-manpage.sh',
+      files('./render-manpage.sh'),
       manual_md,
       entry.get(3, []),
       nix_input,
