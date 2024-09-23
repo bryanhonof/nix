@@ -7,7 +7,9 @@
 , mdbook
 , mdbook-linkcheck
 , jq
-, nix-ng
+, python3
+, rsync
+, nix-cli
 
 # Configuration Options
 
@@ -23,12 +25,20 @@ mkMesonDerivation (finalAttrs: {
   inherit version;
 
   workDir = ./.;
-  fileset = fileset.unions [
-    ./.version
-    ./meson.build
-    ../../.version
-    ../../doc/manual
-  ];
+  fileset = fileset.difference
+    (fileset.unions [
+      ./.version
+      ./meson.build
+      ../../.version
+      # Too many different types of files to filter for now
+      ../../doc/manual
+      ./.
+    ])
+    # Do a blacklist instead
+    ../../doc/manual/package.nix;
+
+  # TODO the man pages should probably be separate
+  outputs = [ "out" "man" ];
 
   # Hack for sake of the dev shell
   passthru.baseNativeBuildInputs = [
@@ -38,10 +48,12 @@ mkMesonDerivation (finalAttrs: {
     mdbook
     mdbook-linkcheck
     jq
+    python3
+    rsync
   ];
 
   nativeBuildInputs = finalAttrs.passthru.baseNativeBuildInputs ++ [
-    nix-ng
+    nix-cli
   ];
 
   preConfigure =

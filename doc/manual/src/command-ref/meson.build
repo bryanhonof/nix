@@ -7,13 +7,14 @@ xp_features_json = custom_target(
 experimental_features_shortlist_md = custom_target(
   command : nix_eval_for_docs + [
     '--expr',
-    'import @INPUT0@ (builtins.fromJSON (builtins.readFile @INPUT1@))',
+    'import @INPUT0@ (builtins.fromJSON (builtins.readFile ./@INPUT1@))',
   ],
   input : [
     '../../generate-xp-features-shortlist.nix',
     xp_features_json,
   ],
   output : 'experimental-features-shortlist.md',
+  capture : true,
   env : nix_env_for_docs,
 )
 
@@ -21,7 +22,7 @@ nix3_cli_files = custom_target(
   command : nix_eval_for_docs_common + [
     '--write-to', '@OUTPUT@',
     '--expr',
-    'import @INPUT0@ true (builtins.readFile @INPUT1@)',
+    'import @INPUT0@ true (builtins.readFile ./@INPUT1@)',
   ],
   input : [
     '../../generate-manpage.nix',
@@ -35,7 +36,7 @@ conf_file_md = custom_target(
   command : [
     nix_eval_for_docs,
     '--expr',
-    'import @INPUT0@ { prefix = "conf"; } (builtins.fromJSON (builtins.readFile @INPUT1@))',
+    'import @INPUT0@ { prefix = "conf"; } (builtins.fromJSON (builtins.readFile ./@INPUT1@))',
   ],
   capture : true,
   input : [

@@ -20,7 +20,7 @@ nix_env_for_docs = {
   'NIX_CONFIG': 'cores = 0',
 }
 
-nix_for_docs = [ nix, '--experimental-features', 'nix-command' ]
+nix_for_docs = [nix, '--experimental-features', 'nix-command']
 nix_eval_for_docs_common = nix_for_docs + [
   'eval',
   '-I', 'nix=' + meson.current_source_dir(),
@@ -30,14 +30,14 @@ nix_eval_for_docs_common = nix_for_docs + [
 nix_eval_for_docs = nix_eval_for_docs_common + '--raw'
 
 conf_file_json = custom_target(
-  command : nix_for_docs + [ 'show-config', '--json' ],
+  command : nix_for_docs + ['show-config', '--json'],
   capture : true,
   output : 'conf-file.json',
   env : nix_env_for_docs,
 )
 
 nix_exp_features_json = custom_target(
-  command : [ nix, '__dump-xp-features' ],
+  command : [nix, '__dump-xp-features'],
   capture : true,
   output : 'xp-features.json',
 )
@@ -50,7 +50,7 @@ language_json = custom_target(
 )
 
 nix3_cli_json = custom_target(
-  command : [ nix, '__dump-cli' ],
+  command : [nix, '__dump-cli'],
   capture : true,
   output : 'nix.json',
   env : nix_env_for_docs,
@@ -99,6 +99,14 @@ nix_conf_file_md = custom_target(
   output : 'conf-file.md',
 )
 
+# Hacky way to figure out if `nix` is an `ExternalProgram` or
+# `Exectuable`. Only the latter can occur in custom target input lists.
+if nix.full_path().startswith(meson.build_root())
+  nix_input = nix
+else
+  nix_input = []
+endif
+
 manual = custom_target(
   'manual',
   command : [
@@ -133,7 +141,7 @@ manual = custom_target(
     builtins_md,
     rl_next_generated,
     summary_rl_next,
-    nix,
+    nix_input,
   ],
   output : [
     'manual',
@@ -201,6 +209,7 @@ foreach command : nix_nested_manpages
     section = '1'
     custom_target(
       command : [
+        bash,
         './render-manpage.sh',
         '--out-no-smarty',
         title,
@@ -210,7 +219,7 @@ foreach command : nix_nested_manpages
       ],
       input : [
         manual_md,
-        nix,
+        nix_input,
       ],
       output : command[0] + '-' + page + '.1',
       install : true,
@@ -321,9 +330,9 @@ foreach page : nix3_manpages
       '@OUTPUT@',
     ],
     input : [
-      'render-manpage.sh',
+      './render-manpage.sh',
       manual_md,
-      nix,
+      nix_input,
     ],
     output : page + '.1',
     install : true,
@@ -364,10 +373,10 @@ foreach entry : nix_manpages
       '@OUTPUT@',
     ],
     input : [
-      'render-manpage.sh',
+      './render-manpage.sh',
       manual_md,
       entry.get(3, []),
-      nix,
+      nix_input,
     ],
     output : '@0@.@1@'.format(entry[0], entry[1]),
     install : true,
