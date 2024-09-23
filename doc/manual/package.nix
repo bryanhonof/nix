@@ -32,7 +32,6 @@ mkMesonDerivation (finalAttrs: {
       ../../.version
       # Too many different types of files to filter for now
       ../../doc/manual
-      ./.
     ])
     # Do a blacklist instead
     ../../doc/manual/package.nix;
