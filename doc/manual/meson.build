@@ -72,33 +72,6 @@ subdir('src/development')
 subdir('src/release-notes')
 subdir('src')
 
-nix_conf_file_md_body = custom_target(
-  command : nix_eval_for_docs + [
-    '--expr',
-    'import @INPUT1@ { prefix = "conf"; } (builtins.fromJSON (builtins.readFile ./@INPUT0@))',
-  ],
-  capture : true,
-  input : [
-    conf_file_json,
-    'utils.nix',
-    'generate-settings.nix',
-    'src' / 'command-ref' / 'conf-file-prefix.md',
-    experimental_features_shortlist_md,
-  ],
-  output : 'conf-file.md.body',
-  env : nix_env_for_docs,
-)
-
-nix_conf_file_md = custom_target(
-  command : [ 'cat', '@INPUT@' ],
-  capture : true,
-  input : [
-    'src/command-ref/conf-file-prefix.md',
-    nix_conf_file_md_body,
-  ],
-  output : 'conf-file.md',
-)
-
 # Hacky way to figure out if `nix` is an `ExternalProgram` or
 # `Exectuable`. Only the latter can occur in custom target input lists.
 if nix.full_path().startswith(meson.build_root())
@@ -351,7 +324,7 @@ nix_manpages = [
   [ 'nix-channel', 1 ],
   [ 'nix-hash', 1 ],
   [ 'nix-copy-closure', 1 ],
-  [ 'nix.conf', 5, 'conf-file.md' ],
+  [ 'nix.conf', 5, conf_file_md.full_path() ],
   [ 'nix-daemon', 8 ],
   [ 'nix-profiles', 5, 'files/profiles.md' ],
 ]
@@ -363,13 +336,14 @@ foreach entry : nix_manpages
   # Therefore we use an optional third element of this array to override the name pattern
   md_file = entry.get(2, title + '.md')
   section = entry[1].to_string()
+  md_file_resolved = join_paths('@INPUT1@/command-ref/', md_file)
   custom_target(
     command : [
       bash,
       '@INPUT0@',
       title,
       section,
-      '@INPUT1@/command-ref/@0@'.format(md_file),
+      md_file_resolved,
       '@OUTPUT@',
     ],
     input : [

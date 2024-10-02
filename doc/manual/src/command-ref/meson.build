@@ -32,7 +32,7 @@ nix3_cli_files = custom_target(
   env : nix_env_for_docs,
 )
 
-conf_file_md = custom_target(
+conf_file_md_body = custom_target(
   command : [
     nix_eval_for_docs,
     '--expr',
@@ -43,6 +43,16 @@ conf_file_md = custom_target(
     '../../generate-settings.nix',
     conf_file_json,
   ],
-  output : 'conf-file.md',
+  output : 'conf-file.body.md',
   env : nix_env_for_docs,
+)
+
+conf_file_md = custom_target(
+  command : [ 'cat', '@INPUT0@', '@INPUT1@' ],
+  capture : true,
+  input : [
+    'conf-file-prefix.md',
+    conf_file_md_body,
+  ],
+  output : 'conf-file.md',
 )
