@@ -27,11 +27,10 @@ mkMesonDerivation (finalAttrs: {
   workDir = ./.;
   fileset = fileset.difference
     (fileset.unions [
-      ./.version
-      ./meson.build
       ../../.version
       # Too many different types of files to filter for now
       ../../doc/manual
+      ./.
     ])
     # Do a blacklist instead
     ../../doc/manual/package.nix;
