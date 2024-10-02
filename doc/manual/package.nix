@@ -21,7 +21,7 @@ let
 in
 
 mkMesonDerivation (finalAttrs: {
-  pname = "nix-internal-api-docs";
+  pname = "nix-manual";
   inherit version;
 
   workDir = ./.;
