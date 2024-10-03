@@ -4,15 +4,14 @@ summary_rl_next = custom_target(
     '-euo', 'pipefail',
     '-c',
     '''
-      if [ -s @INPUT0@ ]; then
-        echo '  - [Upcoming release](release-notes/rl-next.md)' > @OUTPUT@
-      else
-        true > @OUTPUT@
+      if [ -e "@INPUT@" ]; then
+        echo '  - [Upcoming release](release-notes/rl-next.md)'
       fi
     ''',
   ],
   input : [
     rl_next_generated,
   ],
+  capture: true,
   output : 'SUMMARY-rl-next.md',
 )
